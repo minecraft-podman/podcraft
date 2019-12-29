@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "podcraft"
 version = "0.1.0"
-description = ""
+description = "Minecraft server manager, using podman"
 authors = ["Jamie Bliss <jamie@ivyleav.es>"]
 
 [tool.poetry.dependencies]
