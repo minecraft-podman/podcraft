@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "podcraft"
+version = "0.1.0"
+description = ""
+authors = ["Jamie Bliss <jamie@ivyleav.es>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+click = "^7.0"
+podman = "^1.6.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^3.0"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
