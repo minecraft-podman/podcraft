@@ -21,6 +21,17 @@ type=vanilla
 [management]
 plugins=["pkg1", "pkg2"]
 
+[management.backup]
+frequency=1h
+
+[[management.backup.job]]
+image=overviewer
+dest='/srv/overviewer'
+
+[[management.backup.job]]
+image=s3
+dest='s3://mybucket/myworld_%y-%m-%d.tar.xz'
+
 [[addon]]
 image=myimage
 volumes=['/world-snapshot', '/mc']
