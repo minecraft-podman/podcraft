@@ -35,8 +35,7 @@ dest='s3://mybucket/myworld_%y-%m-%d.tar.xz'
 
 [[addon]]
 image="myimage"
-volumes=['/world-snapshot', '/mc']
 
-  [[addon.buildargs]]
+  [addon.buildargs]
   spam="eggs"
 ```
