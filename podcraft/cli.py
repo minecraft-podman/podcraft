@@ -7,8 +7,8 @@ def main():
 
 
 @main.command()
-def build():
-    click.echo('TODO: Build images')
+def init():
+    click.echo('TODO: Build images & prep')
 
 
 @main.command()
@@ -26,5 +26,6 @@ def stop():
     click.echo('TODO: Stop pod')
 
 
+# RCON
 # Whitelist
 # Banlist

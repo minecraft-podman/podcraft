@@ -11,10 +11,13 @@ Example Config
 [properties]
 # Based on https://minecraft.gamepedia.com/Server.properties
 motd="My Server"
-port=25565
+server-port=25565
 
 [server]
 type="vanilla"
+
+[volumes]
+map="/srv/overviewer"
 
 [management]
 plugins=["pkg1", "pkg2"]
