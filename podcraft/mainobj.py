@@ -3,6 +3,8 @@ import toml
 
 from cached_property import cached_property
 
+from .config import Config
+
 
 CONFIG_FILE_NAME = "podcraft.toml"
 
@@ -36,19 +38,5 @@ class Podcraft:
         Config data from the TOML file
         """
         with (self.root / CONFIG_FILE_NAME).open('rt') as cf:
-            return toml.load(cf)
+            return Config(toml.load(cf))
         # TODO: Apply schema/defaults
-
-    @property
-    def server_buildargs(self):
-        """
-        The buildargs for the server container
-        """
-        return self.config['server']
-
-    def server_properties(self):
-        """
-        Compute the values of server.properties for use inside the pod.
-
-        NOTE: This can vary from what the user specified
-        """
