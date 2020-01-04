@@ -13,7 +13,7 @@ motd="My Server"
 server-port=25565
 
 [server]
-eula=yes
+eula="yes"
 type="vanilla"
 
 [volumes]
@@ -78,7 +78,7 @@ Volumes are taken from the container.
 Per-job settings are also defined here. Individual docs forthcoming.
 
 ### addon
-These sections define additional service containers to run inside the pod. These can vary from user-facing web apps to <more examples>.
+These sections define additional service containers to run inside the pod. These can things such as user-facing web apps, prometheus endpoints, databases, <>.
 
 Volumes and exposed ports are taken from the container.
 
