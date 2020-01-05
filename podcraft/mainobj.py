@@ -4,10 +4,13 @@ import toml
 from cached_property import cached_property
 
 from .config import Config
+from .state import State
 from .images import build_server, build_manager
 from .podman import client
 
 CONFIG_FILE_NAME = "podcraft.toml"
+
+STATE_FILE_NAME = ".tmp/state"
 
 
 class NoProjectError(Exception):
@@ -42,6 +45,25 @@ class Podcraft:
             return Config(toml.load(cf))
         # TODO: Apply schema/defaults
 
+    def __enter__(self):
+        self.state.__enter__()
+        return self
+
+    def __exit__(self, type, value, tb):
+        self.state.__exit__(type, value, tb)
+
+    def _ensure_tmp(self):
+        if not (self.root / ".tmp").exists():
+            (self.root / ".tmp").mkdir(parents=True)
+
+    @cached_property
+    def state(self):
+        """
+        Config data from the TOML file
+        """
+        self._ensure_tmp()
+        return State(self.root / STATE_FILE_NAME)
+
     def rebuild_images(self, outputter=lambda *p: None):
         with client() as pm:
             outputter("server")
@@ -50,8 +72,5 @@ class Podcraft:
             outputter("manager")
             man_img = build_manager(pm, self.config.manage_buildargs())
 
-            print("Server:", serv_img.id)
-            print("Manager:", man_img.id)
-
-            # TODO: Save the image IDs
-            # TODO: Invalidate the current containers (force new containers on next start)
+            self.state.save_image('server', serv_img)
+            self.state.save_image('manager', man_img)

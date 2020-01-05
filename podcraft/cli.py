@@ -18,7 +18,8 @@ def main(ctx):
 @main.command()
 @click.pass_obj
 def build(pc):
-    pc.rebuild_images(lambda cont: print(f"Building {cont}..."))
+    with pc:
+        pc.rebuild_images(lambda cont: print(f"Building {cont}..."))
 
 
 @main.command()
@@ -36,6 +37,7 @@ def stop():
     click.echo('TODO: Stop pod')
 
 
+# init/new
 # RCON
 # Whitelist
 # Banlist
