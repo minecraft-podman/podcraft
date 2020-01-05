@@ -4,8 +4,6 @@ import sys
 import click
 
 from .mainobj import Podcraft, NoProjectError
-from .poddir import build_server, build_manager
-from .podman import client
 
 
 @click.group()
@@ -20,15 +18,7 @@ def main(ctx):
 @main.command()
 @click.pass_obj
 def build(pc):
-    with client() as pm:
-        print("Building server...")
-        serv_img = build_server(pm, {'eula': 'yes'})
-        print(serv_img)
-        print(serv_img.inspect())
-        print("Building manager...")
-        man_img = build_manager(pm)
-        print(man_img)
-        print(man_img.inspect())
+    pc.rebuild_images(lambda cont: print(f"Building {cont}..."))
 
 
 @main.command()

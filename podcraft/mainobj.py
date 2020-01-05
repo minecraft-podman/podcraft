@@ -4,7 +4,8 @@ import toml
 from cached_property import cached_property
 
 from .config import Config
-
+from .images import build_server, build_manager
+from .podman import client
 
 CONFIG_FILE_NAME = "podcraft.toml"
 
@@ -40,3 +41,17 @@ class Podcraft:
         with (self.root / CONFIG_FILE_NAME).open('rt') as cf:
             return Config(toml.load(cf))
         # TODO: Apply schema/defaults
+
+    def rebuild_images(self, outputter=lambda *p: None):
+        with client() as pm:
+            outputter("server")
+            serv_img = build_server(pm, self.config.server_buildargs())
+
+            outputter("manager")
+            man_img = build_manager(pm, self.config.manage_buildargs())
+
+            print("Server:", serv_img.id)
+            print("Manager:", man_img.id)
+
+            # TODO: Save the image IDs
+            # TODO: Invalidate the current containers (force new containers on next start)

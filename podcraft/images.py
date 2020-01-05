@@ -21,7 +21,6 @@ import subprocess
 CONTAINER_REPOS = {
     'server': "https://github.com/minecraft-podman/docker-server/archive/master.tar.gz",
     'manage': "https://github.com/minecraft-podman/manage/archive/master.tar.gz",
-    # overviewer
 }
 
 
@@ -34,7 +33,7 @@ CONTAINER_REPOS = {
 #             for chunk in resp.iter_content(chunk_size=8192):
 #                 if chunk:  # Filter out keep-alive new chunks
 #                     tarbuf.write(chunk)
-
+#
 #         tarbuf.seek(0)
 #         buildroot = os.path.join(tempdir, 'context.tar')
 #         dockerfile = os.path.join(tempdir, 'Dockerfile')
@@ -51,7 +50,7 @@ CONTAINER_REPOS = {
 #                         stream.seek(0)
 #                         with open(dockerfile, 'wb') as df:
 #                             df.write(stream.read())
-
+#
 #         # 2. Build into image
 #         img = podman.images.build(
 #             buildArgs=buildargs,
@@ -65,7 +64,7 @@ CONTAINER_REPOS = {
 
 
 # https://github.com/containers/python-podman/issues/63
-def build_img_from_url(podman, url, buildargs):
+def build_img_from_url(podman, url, buildargs, *, verbose=False):
     """
     Downloads a tarball from the given URL and uses it to build an image.
     """
@@ -87,13 +86,19 @@ def build_img_from_url(podman, url, buildargs):
 
         # 2. Build into image
         with tempfile.NamedTemporaryFile('w+t', encoding='utf-8') as ntf:
-            cli = ['podman', 'build', '--quiet']
+            cli = ['podman', 'build']
             for k, v in buildargs.items():
                 cli += ['--build-arg', f'{k}={v}']
             cli += ['--iidfile', ntf.name]
             cli += [buildroot]
 
-            subprocess.run(cli, stdin=subprocess.DEVNULL)
+            # FIXME: Forward output on error
+            subprocess.run(
+                cli, stdin=subprocess.DEVNULL,
+                stdout=None if verbose else subprocess.DEVNULL,
+                stderr=subprocess.STDOUT,
+                check=True,
+            )
 
             ntf.seek(0)
             image_id = ntf.read().strip()
@@ -101,8 +106,32 @@ def build_img_from_url(podman, url, buildargs):
 
 
 def build_server(podman, buildargs):
+    """
+    Build the server container image
+    """
     return build_img_from_url(podman, CONTAINER_REPOS['server'], buildargs)
 
 
-def build_manager(podman):
-    return build_img_from_url(podman, CONTAINER_REPOS['manage'], {})
+def build_manager(podman, buildargs):
+    """
+    Build the management container image
+    """
+    return build_img_from_url(podman, CONTAINER_REPOS['manage'], buildargs)
+
+
+def get_ports(image):
+    """
+    Get the declared exposed ports for the given image.
+
+    All are in the form of "<port>/<tcp|udp>".
+    """
+    ii = image.inspect()
+    yield from ii.config.get('exposedports', {}).keys()
+
+
+def get_volumes(image):
+    """
+    Get the declared volumes for the given image
+    """
+    ii = image.inspect()
+    yield from ii.config.get('volumes', {}).keys()

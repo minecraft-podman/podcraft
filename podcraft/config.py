@@ -1,5 +1,7 @@
 """
-Do all the calculations for config stuff
+Do all the calculations for config stuff.
+
+This does no work, just manages config and computes values.
 """
 import json
 import secrets
@@ -9,7 +11,12 @@ RCON_PORT = 25575
 QUERY_PORT = 25565
 
 
+# A lot of assumptions are encoded here (Especially those shared with various Dockerfiles)
 class Config(dict):
+    podman_socket = '.tmp/io.podman.socket'
+    podman_pidfile = '.tmp/io.podman.pid'
+    properties_file = '.tmp/server.properties'
+
     def server_buildargs(self):
         """
         The buildargs for the server container
@@ -17,6 +24,9 @@ class Config(dict):
         return self['server']
 
     def manage_buildargs(self):
+        """
+        The buildargs for the management container
+        """
         return {
             'extra_pkgs': json.dumps(self['management'].get('plugins')),
         }
@@ -49,12 +59,12 @@ class Config(dict):
         rv = {}
         # Minecraft
         mc_port = self['properties'].get('server-port', MINECRAFT_PORT)
-        rv[mc_port] = ('server', MINECRAFT_PORT)
+        rv[f'{mc_port}/tcp'] = ('server', MINECRAFT_PORT)
 
         # MC RCON
         if self['properties'].get('enable-rcon', False):
             rcon_port = self['properties'].get('rcon.port', RCON_PORT)
-            rv[rcon_port] = ('server', RCON_PORT)
+            rv[f'{rcon_port}/tcp'] = ('server', RCON_PORT)
 
         # MC Query
         if self['properties'].get('enable-query', False):
@@ -64,7 +74,7 @@ class Config(dict):
         # Management API
         if 'server-port' in self['management']:
             man_port = self['management']['server-port']
-            rv[man_port] = ('manage', 80)
+            rv[f'{man_port}/tcp'] = ('manage', 80)
 
         # Can't compute ports for addons, those come from the container images
 
@@ -72,15 +82,18 @@ class Config(dict):
 
     def volumes(self):
         """
-        Generates (local dir, mount point) of all the volumes in the config.
+        Generates (host location, mount point) of all the volumes in the config.
 
-        Local dir can be None, in which case it doesn't need to be save locally
+        Host location can be None, in which case it doesn't need to be saved
+        locally.
         """
+        # These are the default volumes always provided
         yield 'live', '/mc/world'
         yield 'snapshot', '/mc/snapshot'
-        yield '.tmp/server.properties', '/mc/server.properties'
+        yield self.properties_file, '/mc/server.properties'
+        yield self.podman_socket, '/io.podman'
         yield 'logs', '/mc/logs'
-        for fname in ("banned-ips.json", "ops.json", "whitelist.json"):
+        for fname in ("banned-ips.json", "banned-players.json", "ops.json", "whitelist.json"):
             yield fname, f'/mc/{fname}'
 
         for name, mount in self['volumes']:
