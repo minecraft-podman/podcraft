@@ -91,7 +91,7 @@ class Config(dict):
         yield 'live', '/mc/world'
         yield 'snapshot', '/mc/snapshot'
         yield self.properties_file, '/mc/server.properties'
-        yield self.podman_socket, '/io.podman'
+        yield self.podman_socket, '/run/podman/io.podman'
         yield 'logs', '/mc/logs'
         for fname in ("banned-ips.json", "banned-players.json", "ops.json", "whitelist.json"):
             yield fname, f'/mc/{fname}'
