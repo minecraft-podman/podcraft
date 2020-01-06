@@ -13,9 +13,16 @@ QUERY_PORT = 25565
 
 # A lot of assumptions are encoded here (Especially those shared with various Dockerfiles)
 class Config(dict):
-    podman_socket = '.tmp/io.podman.socket'
-    podman_pidfile = '.tmp/io.podman.pid'
+    podman_dir = '.tmp/podman'
     properties_file = '.tmp/server.properties'
+
+    @property
+    def podman_socket(self):
+        return f'{self.podman_dir}/io.podman'
+
+    @property
+    def podman_pidfile(self):
+        return f'{self.podman_dir}/io.podman.pid'
 
     def server_buildargs(self):
         """
@@ -91,7 +98,7 @@ class Config(dict):
         yield 'live', '/mc/world'
         yield 'snapshot', '/mc/snapshot'
         yield self.properties_file, '/mc/server.properties'
-        yield self.podman_socket, '/run/podman/io.podman'
+        yield self.podman_dir, '/run/podman'
         yield 'logs', '/mc/logs'
         for fname in ("banned-ips.json", "banned-players.json", "ops.json", "whitelist.json"):
             yield fname, f'/mc/{fname}'
