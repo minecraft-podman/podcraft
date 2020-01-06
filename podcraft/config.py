@@ -96,5 +96,5 @@ class Config(dict):
         for fname in ("banned-ips.json", "banned-players.json", "ops.json", "whitelist.json"):
             yield fname, f'/mc/{fname}'
 
-        for name, mount in self['volumes']:
+        for name, mount in self['volumes'].items():
             yield name, mount

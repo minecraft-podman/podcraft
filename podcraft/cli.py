@@ -1,5 +1,6 @@
 import os
 import sys
+import logging
 
 import click
 
@@ -9,6 +10,7 @@ from .mainobj import Podcraft, NoProjectError
 @click.group()
 @click.pass_context
 def main(ctx):
+    logging.basicConfig(format='%(message)s', level=logging.INFO)
     try:
         ctx.obj = Podcraft.find_project(os.getcwd())
     except NoProjectError:
