@@ -25,18 +25,24 @@ def build(pc):
 
 
 @main.command()
-def start():
-    click.echo('TODO: Start pod')
+@click.pass_obj
+def start(pc):
+    with pc:
+        pc.start()
 
 
 @main.command()
-def status():
-    click.echo('TODO: Check pod')
+@click.pass_obj
+def status(pc):
+    with pc:
+        sys.exit(0 if pc.is_running() else 1)
 
 
 @main.command()
-def stop():
-    click.echo('TODO: Stop pod')
+@click.pass_obj
+def stop(pc):
+    with pc:
+        pc.stop()
 
 
 # init/new
