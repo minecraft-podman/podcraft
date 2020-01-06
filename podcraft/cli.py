@@ -19,7 +19,7 @@ def main(ctx):
 @click.pass_obj
 def build(pc):
     with pc:
-        pc.rebuild_images(lambda cont: print(f"Building {cont}..."))
+        pc.rebuild_everything()
 
 
 @main.command()

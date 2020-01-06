@@ -64,13 +64,27 @@ class Podcraft:
         self._ensure_tmp()
         return State(self.root / STATE_FILE_NAME)
 
-    def rebuild_images(self, outputter=lambda *p: None):
+    def rebuild_everything(self):
+        """
+        Rebuild all of the stuff
+        """
         with client() as pm:
-            outputter("server")
+            # 1. Build the images
             serv_img = build_server(pm, self.config.server_buildargs())
-
-            outputter("manager")
-            man_img = build_manager(pm, self.config.manage_buildargs())
-
             self.state.save_image('server', serv_img)
+
+            man_img = build_manager(pm, self.config.manage_buildargs())
             self.state.save_image('manager', man_img)
+
+            # 2. Assemble complete list of volumes and forwards
+            ...
+
+            # 3. Create volumes (storage directories)
+            ...
+
+            # 4. Create pod
+            pod = pm.pods.create()  # FIXME: Forwards
+            self.state.save_pod(pod)
+
+            # 5. Create containers
+            ...
