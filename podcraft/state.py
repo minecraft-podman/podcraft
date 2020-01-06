@@ -15,7 +15,6 @@ def default_state():
     return {
         'images': {},
         'containers': {},
-        'pod': None,
     }
 
 
@@ -96,6 +95,9 @@ class State:
         """
         Save a container
         """
+        if pod is None:
+            del self.data['pod']
+            return
         if isinstance(pod, str):
             save = {'id': pod}
         else:
@@ -106,13 +108,16 @@ class State:
         """
         Get the ID for the given image.
         """
-        return self.data['pod']['id']
+        return self.data.get('pod', {}).get('id')
 
     def get_pod_object(self, *, client):
         """
         Get the ID for the given image.
         """
-        obj = client.pods.get(self.get_pod())
+        podid = self.get_pod()
+        if podid is None:
+            return
+        obj = client.pods.get(podid)
         self.save_pod(obj)  # Update cache
         return obj
 
