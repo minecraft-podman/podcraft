@@ -95,24 +95,21 @@ class Podcraft:
             self._ensure_tmp()
             for hostpath in volumes.values():
                 hostpath = self.root / hostpath
-                if hostpath.name == 'io.podman.socket':
-                    # This gets created when podman is started
-                    # XXX: I really hope we can bind-mount a non-existent inode
-                    pass
-                elif not hostpath.exists():
+                if not hostpath.exists():
                     # FIXME: Better heuristic for what's files and directories
                     if '.' in hostpath.name:
                         hostpath.touch()
                     else:
                         hostpath.mkdir(parents=True)
 
+            # 5. Write out server.properties
+            _ = self.config.server_properties()
+            log.warning("TODO: server.properties")
+
             # 4. Create pod
             log.info("Creating pod")
             pod = pm.pods.create()  # FIXME: Forwards
             self.state.save_pod(pod)
-
-            # 5. Write out server.properties
-            log.warning("TODO: server.properties")
 
             # 6. Create containers
             log.info("Creating containers")
