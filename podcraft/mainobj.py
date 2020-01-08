@@ -151,7 +151,11 @@ class Podcraft:
                 if not hostpath.exists():
                     # FIXME: Better heuristic for what's files and directories
                     if '.' in hostpath.name:
-                        hostpath.touch()
+                        if not hostpath.exists():
+                            if hostpath.suffix == '.json':
+                                hostpath.write_text('[]')
+                            else:
+                                hostpath.touch()
                     else:
                         hostpath.mkdir(parents=True)
 
