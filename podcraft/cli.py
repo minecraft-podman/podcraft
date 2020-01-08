@@ -20,6 +20,9 @@ def main(ctx):
 @main.command()
 @click.pass_obj
 def build(pc):
+    """
+    (Re)build containers and related resources.
+    """
     with pc:
         pc.cleanup()
         pc.rebuild_everything()
@@ -27,7 +30,24 @@ def build(pc):
 
 @main.command()
 @click.pass_obj
+def unbuild(pc):
+    """
+    Clean up container-related resources.
+
+    Does not delete volume data.
+    """
+    with pc:
+        pc.cleanup()
+
+
+@main.command()
+@click.pass_obj
 def start(pc):
+    """
+    Start the server.
+
+    Will fail if it's not built.
+    """
     with pc:
         pc.start()
 
@@ -35,6 +55,11 @@ def start(pc):
 @main.command()
 @click.pass_obj
 def status(pc):
+    """
+    Checks if the server is running.
+
+    0 if it is, 1 if it isn't.
+    """
     with pc:
         sys.exit(0 if pc.is_running() else 1)
 
@@ -42,11 +67,15 @@ def status(pc):
 @main.command()
 @click.pass_obj
 def stop(pc):
+    """
+    Stop the server.
+    """
     with pc:
         pc.stop()
 
 
 # init/new
 # RCON
+# Server list ping
 # Whitelist
 # Banlist
