@@ -33,16 +33,10 @@ def _create(self, *args, **kwargs):
     details = self.inspect()
 
     config = ConfigDict(image_id=self._id, **kwargs)
-    # https://github.com/containers/libpod/issues/4809
-    # config["entrypoint"] = details.config.get("entrypoint")
-    # config["command"] = details.config.get("cmd")
-    config["command"] = details.config.get("entrypoint", []) + details.config.get("cmd", [])
+    config["command"] = details.config.get("cmd")
     config["env"] = self._split_token(details.config.get("env"))
     config["image"] = copy.deepcopy(details.repotags[0])  # Falls to https://github.com/containers/python-podman/issues/65
     config["labels"] = copy.deepcopy(details.labels)
-    # TODO: Are these settings still required?
-    config["net_mode"] = "bridge"
-    config["network"] = "bridge"
     config["args"] = [config["image"], *config["command"]]
 
     logging.debug("Image %s: create config: %s", self._id, config)
