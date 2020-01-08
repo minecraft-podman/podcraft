@@ -31,11 +31,12 @@ with tempfile.TemporaryDirectory() as td:
     else:
         print("Found dists:", *dists)
 
-    print("Uploading to test repo...")
+    # Poetry does not support automatic version numbers at this time, so we can't do this
+    # print("Uploading to test repo...")
 
-    twine upload --repository-url @(PYPI_TEST_REPO) --username __token__ --password $TWINE_TEST_TOKEN @(dists)
+    # twine upload --repository-url @(PYPI_TEST_REPO) --username __token__ --password $TWINE_TEST_TOKEN @(dists)
 
-    print("")
+    # print("")
 
     if 'CIRRUS_RELEASE' in ${...}:
         print("Uploading to GitHub...")
