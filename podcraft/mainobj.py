@@ -1,5 +1,6 @@
 import logging
 import pathlib
+import subprocess
 
 import toml
 from cached_property import cached_property
@@ -200,6 +201,18 @@ class Podcraft:
         with client() as pm:
             pod = self.state.get_pod_object(client=pm)
             return pod.status == 'Running'
+
+    def exec(self, cname, cmd):
+        # TODO: Use ExecContainer instead
+        with client() as pm:
+            cont = self.state.get_container_object(cname, client=pm)
+
+            proc = subprocess.run(
+                ['podman', 'exec', cont.id, *cmd], encoding='utf-8',
+                stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
+        return proc.returncode, proc.stdout
 
 
 def produce_properties(props):

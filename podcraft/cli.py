@@ -74,6 +74,18 @@ def stop(pc):
         pc.stop()
 
 
+@main.command()
+@click.argument('cmd', nargs=-1)
+@click.pass_obj
+def rcon(pc, cmd):
+    """
+    Run an rcon command
+    """
+    with pc:
+        rc, out = pc.exec('server', ['cmd', ' '.join(cmd)])
+        print(out)
+        sys.exit(rc)
+
 # init/new
 # RCON
 # Server list ping
