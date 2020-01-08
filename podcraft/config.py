@@ -100,6 +100,7 @@ class Config(dict):
         yield self.properties_file, '/mc/server.properties'
         yield self.podman_dir, '/run/podman'
         yield 'logs', '/mc/logs'
+        yield 'crash-reports', '/mc/crash-reports'
         for fname in ("banned-ips.json", "banned-players.json", "ops.json", "whitelist.json"):
             yield fname, f'/mc/{fname}'
 

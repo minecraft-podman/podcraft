@@ -47,6 +47,9 @@ class State:
         """
         Save a custom-made image
         """
+        if img is None:
+            del self.data['images'][name]
+            return
         if isinstance(img, str):
             save = {'id': img}
         else:
@@ -71,6 +74,9 @@ class State:
         """
         Save a container
         """
+        if cont is None:
+            del self.data['containers'][name]
+            return
         if isinstance(cont, str):
             save = {'id': cont}
         else:

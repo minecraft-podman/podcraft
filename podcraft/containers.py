@@ -12,20 +12,20 @@ from .images import get_volumes
 
 def create_container(image, pod, volumes, **opts):
     img_volumes = set(get_volumes(image))
-    c_volumes = [
+    c_mounts = [
         f"type=bind,source={h},destination={c}"
-        for h, c in volumes.items() if c in img_volumes
+        for c, h in volumes.items() if c in img_volumes
     ]
 
     return _create(
         image,
         pod=pod.id,
-        volume=c_volumes,
+        mount=c_mounts,
         **opts
     )
 
 
-# Exists because https://github.com/containers/python-podman/issues/65
+# Exists because bug work-arounds
 def _create(self, *args, **kwargs):
     """Create container from image.
     Pulls defaults from image.inspect()
@@ -33,14 +33,17 @@ def _create(self, *args, **kwargs):
     details = self.inspect()
 
     config = ConfigDict(image_id=self._id, **kwargs)
-    config["command"] = details.config.get("cmd")
+    # https://github.com/containers/libpod/issues/4809
+    # config["entrypoint"] = details.config.get("entrypoint")
+    # config["command"] = details.config.get("cmd")
+    config["command"] = details.config.get("entrypoint", []) + details.config.get("cmd", [])
     config["env"] = self._split_token(details.config.get("env"))
-    config["image"] = self.id
+    config["image"] = copy.deepcopy(details.repotags[0])  # Falls to https://github.com/containers/python-podman/issues/65
     config["labels"] = copy.deepcopy(details.labels)
     # TODO: Are these settings still required?
     config["net_mode"] = "bridge"
     config["network"] = "bridge"
-    config["args"] = flatten([config["image"], config["command"]])
+    config["args"] = [config["image"], *config["command"]]
 
     logging.debug("Image %s: create config: %s", self._id, config)
     with self._client() as podman:

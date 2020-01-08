@@ -18,6 +18,8 @@ import io
 import os.path
 import subprocess
 
+from .namegen import generate_name
+
 CONTAINER_REPOS = {
     'server': "https://github.com/minecraft-podman/docker-server/archive/master.tar.gz",
     'manage': "https://github.com/minecraft-podman/manage/archive/master.tar.gz",
@@ -90,6 +92,7 @@ def build_img_from_url(podman, url, buildargs, *, verbose=False):
             for k, v in buildargs.items():
                 cli += ['--build-arg', f'{k}={v}']
             cli += ['--iidfile', ntf.name]
+            cli += ['--tag', generate_name()]
             cli += [buildroot]
 
             # FIXME: Forward output on error

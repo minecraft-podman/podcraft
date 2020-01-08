@@ -3,6 +3,7 @@ import pathlib
 
 import toml
 from cached_property import cached_property
+import podman.libs.errors
 
 from .config import Config
 from .state import State
@@ -68,6 +69,47 @@ class Podcraft:
         self._ensure_tmp()
         return State(self.root / STATE_FILE_NAME)
 
+    def cleanup(self):
+        """
+        Deletes all the podman resources.
+
+        Does not delete volume data
+        """
+        log.info("Cleaning up")
+        with client() as pm:
+            for name in ('server', 'manager'):
+                try:
+                    c = self.state.get_container_object(name, client=pm)
+                except KeyError:
+                    pass
+                except podman.libs.errors.ContainerNotFound:
+                    self.state.save_container(name, None)
+                else:
+                    try:
+                        c.remove(force=True)
+                    except Exception:
+                        pass
+                    self.state.save_container(name, None)
+
+                try:
+                    i = self.state.get_image_object(name, client=pm)
+                except KeyError:
+                    pass
+                else:
+                    try:
+                        i.remove(force=True)
+                    except Exception:
+                        pass
+                    self.state.save_image(name, None)
+
+            p = self.state.get_pod_object(client=pm)
+            if p is not None:
+                try:
+                    p.remove(force=True)
+                except Exception:
+                    pass
+                self.state.save_pod(None)
+
     def rebuild_everything(self):
         """
         Rebuild all of the stuff
@@ -91,7 +133,7 @@ class Podcraft:
                 for outter, (_, inner) in self.config.exposed_ports().items()
             ]
             volumes = {
-                c: h if h else f".tmp/{c.replace('/', '_')}"
+                c: self.root / (h if h else f".tmp/{c.replace('/', '_')}")
                 for h, c in self.config.volumes()
             }
             for img in (serv_img, man_img):

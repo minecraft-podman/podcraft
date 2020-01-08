@@ -21,6 +21,7 @@ def main(ctx):
 @click.pass_obj
 def build(pc):
     with pc:
+        pc.cleanup()
         pc.rebuild_everything()
 
 
