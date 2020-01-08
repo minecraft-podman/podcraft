@@ -1,0 +1,55 @@
+# test_task:
+#   container:
+#     image: python:3
+#   script:
+#     - python setup.py test
+
+
+# flake8_task:
+#   container:
+#     image: python:3
+#   setup_script:
+#     - pip install flake8
+#   script:
+#     - flake8
+
+
+# docs_task:
+#   skip: $CIRRUS_BRANCH =~ '.*\.tmp'
+#   container:
+#     image: python:3
+#   install_script:
+#     - pip install --upgrade-strategy eager -U -r docs/requirements.txt
+#     - pip install -e .
+#   script:
+#     - make -C docs/ linkcheck
+#     - make -C docs/ html
+
+
+build_task:
+  container:
+    image: python:3
+  setup_script:
+    - pip install bork
+  script:
+    - bork build
+  dist_artifacts:
+    path: "dist/**"
+ 
+
+upload_task:
+  only_if: $CIRRUS_BRANCH == $CIRRUS_DEFAULT_BRANCH || $CIRRUS_RELEASE != ''
+  depends_on:
+    - build
+    # - test
+    # - flake8
+  # env:
+  #   TWINE_TEST_TOKEN: "ENCRYPTED[15071cd66dd94b9fba560975f4412aca76b2c3009e548c790152152b6e4c555a8c4bb72af375370bf581a65c2d5d3cc5]"
+  #   TWINE_PROD_TOKEN: "ENCRYPTED[d99deedd29e706f80e854ca22f8222b0d13dffce4a044dfbdcf6aa326cd35983b20ec5d33fc84cb8f36671613ba668bc]"
+  #   GITHUB_TOKEN: "ENCRYPTED[63ba2e1e3c0107a93f9b38a26f312b814d89eccdbfcfadffcfd4270a41374b444350782f0392e53597ad6f68c4fa2912]"
+  container:
+    image: xonsh/xonsh:slim
+  install_script:
+    - pip install twine
+  script:
+    - xonsh .ci/upload.xsh
