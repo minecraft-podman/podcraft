@@ -1,8 +1,18 @@
 podcraft
 ========
 
-Manages and runs minecraft servers, using podman and container pods.
+Manages and runs minecraft servers, using [podman](https://podman.io/) and container pods.
 
+
+Howto
+-----
+
+0. [Install podman](https://podman.io/getting-started/installation)
+1. Install podcraft (eg, `pip install podcraft`)
+2. Create a directory to store everything
+3. Create a `podcraft.toml` in this directory (see below)
+4. Run `podcraft build` to create all the containers
+5. Run `podcraft start` to start the server
 
 Config
 ------
