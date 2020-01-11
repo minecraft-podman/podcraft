@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "podcraft"
-version = "0.0.1"
+version = "0.1.0"
 description = "Minecraft server manager, using podman"
 authors = ["Jamie Bliss <jamie@ivyleav.es>"]
 
