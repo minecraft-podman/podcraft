@@ -80,32 +80,39 @@ class Podcraft:
         with client() as pm:
             for name in ('server', 'manager'):
                 try:
+                    log.debug(f"Getting {name} container")
                     c = self.state.get_container_object(name, client=pm)
                 except KeyError:
                     pass
                 except podman.libs.errors.ContainerNotFound:
+                    log.debug("Stale state")
                     self.state.save_container(name, None)
                 else:
                     try:
+                        log.debug(f"Removing {name} container")
                         c.remove(force=True)
                     except Exception:
                         pass
                     self.state.save_container(name, None)
 
                 try:
+                    log.debug(f"Getting {name} image")
                     i = self.state.get_image_object(name, client=pm)
                 except KeyError:
                     pass
                 else:
                     try:
+                        log.debug(f"Removing {name} image")
                         i.remove(force=True)
                     except Exception:
                         pass
                     self.state.save_image(name, None)
 
+            log.debug("Getting pod")
             p = self.state.get_pod_object(client=pm)
             if p is not None:
                 try:
+                    log.debug(f"Removing pod")
                     p.remove(force=True)
                 except Exception:
                     pass
