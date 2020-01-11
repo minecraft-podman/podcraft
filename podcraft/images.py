@@ -58,7 +58,7 @@ CONTAINER_REPOS = {
 #             buildArgs=buildargs,
 #             contextDir=buildroot,
 #             dockerfile=dockerfile,
-#             tags="TODO",  # TODO: Generate system-unique tags
+#             tags=generate_name(),
 #             # annotations={
 #             #     'podcraft.root': serverdir,
 #             # },

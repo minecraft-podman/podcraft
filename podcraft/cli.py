@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import logging
@@ -86,8 +87,36 @@ def rcon(pc, cmd):
         print(out)
         sys.exit(rc)
 
+
+@main.command()
+@click.argument('cmd', nargs=-1)
+@click.pass_obj
+def ping(pc, cmd):
+    """
+    Do a server list ping
+    """
+    with pc:
+        rc, out = pc.exec('server', ['status'])
+        try:
+            data = json.loads(out)
+        except Exception:
+            click.echo(out)
+        else:
+            # This bit adapted from mcstatus
+            click.echo(f"version: v{data['version']['name']} (protocol {data['version']['protocol']})")
+            click.echo(f"description: {data['description']['text']}")
+            click.echo(
+                "players: {}/{} {}".format(
+                    data['players']['online'],
+                    data['players']['max'],
+                    [
+                        "{} ({})".format(player['name'], player['id'])
+                        for player in data['players']['sample']
+                    ] if data.get('players', {}).get('sample') else "No players online"
+                )
+            )
+        sys.exit(rc)
+
 # init/new
-# RCON
-# Server list ping
 # Whitelist
 # Banlist
