@@ -10,7 +10,7 @@ from .mainobj import Podcraft, NoProjectError
 @click.group()
 @click.pass_context
 def main(ctx):
-    logging.basicConfig(format='%(message)s', level=logging.INFO)
+    logging.basicConfig(format='%(message)s', level=logging.DEBUG)
     try:
         ctx.obj = Podcraft.find_project(os.getcwd())
     except NoProjectError:
