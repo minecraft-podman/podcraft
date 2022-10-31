@@ -81,7 +81,26 @@ def build_img_from_url(podman, url, buildargs, *, verbose=False):
 
         tarbuf.seek(0)
         with tarfile.open(fileobj=tarbuf, mode='r:gz') as src:
-            src.extractall(tempdir)
+            def is_within_directory(directory, target):
+                
+                abs_directory = os.path.abspath(directory)
+                abs_target = os.path.abspath(target)
+            
+                prefix = os.path.commonprefix([abs_directory, abs_target])
+                
+                return prefix == abs_directory
+            
+            def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+            
+                for member in tar.getmembers():
+                    member_path = os.path.join(path, member.name)
+                    if not is_within_directory(path, member_path):
+                        raise Exception("Attempted Path Traversal in Tar File")
+            
+                tar.extractall(path, members, numeric_owner=numeric_owner) 
+                
+            
+            safe_extract(src, tempdir)
             root = src.getmembers()[0].name.split('/', 1)[0]
 
         buildroot = os.path.join(tempdir, root)
